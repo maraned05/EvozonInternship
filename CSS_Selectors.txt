@@ -1,0 +1,7 @@
+1. Search input: div.input-box > input#search
+2. List of the visible menus: #nav > ol.nav-primary
+3. Cart icon: .skip-cart > span.icon
+4. The next image: ul.promos > li:nth-child(3) > a > img[alt="Travel Gear for Every Occasion"]
+5. Page title: div.page-header-container > a.logo > img[alt="Madison Island"]
+6. The top "Sort By" dropdown: .category-products > div.toolbar > div.sorter > div.sort-by > select
+7. The bottom "Proceed to Checkout" button: .method-checkout-cart-methods-onepage-bottom > button
