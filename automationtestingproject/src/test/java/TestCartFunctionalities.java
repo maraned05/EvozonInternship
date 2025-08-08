@@ -1,10 +1,14 @@
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.automation.pages.CartItemPage;
+import com.automation.pages.ProductDetailsPage;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Locator;
@@ -16,6 +20,8 @@ public class TestCartFunctionalities {
     static Playwright playwright;
     static Browser browser;
     Page page;
+    ProductDetailsPage productPage;
+    CartItemPage cartProduct;
 
     @BeforeAll
     static void setupClass() {
@@ -27,6 +33,8 @@ public class TestCartFunctionalities {
     void setupTest() {
         BrowserContext context = browser.newContext();
         page = context.newPage();
+        this.productPage = new ProductDetailsPage(page);
+        this.cartProduct = new CartItemPage(page);
     }
 
     @Test
@@ -34,39 +42,23 @@ public class TestCartFunctionalities {
         // Madison LX2200
 
         // Add a simple item to cart
-        page.navigate("http://qa3magento.dev.evozon.com/");
-        Locator homeSection = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Home & Decor").setExact(true));
-        homeSection.hover();
-        Locator electronicsSection = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Electronics").setExact(true));
-        electronicsSection.click();
-        Locator addToCartButton = page.locator(".products-grid > li:nth-child(1) > div.product-info > div.actions > button.btn-cart");
-        addToCartButton.click();
+        this.productPage.navigate("http://qa3magento.dev.evozon.com/home-decor/electronics/madison-lx2200.html");
+        this.productPage.clickAddToCartButton();
 
         // Check if the user has been redirected to the cart page
         assertThat(page).hasURL("http://qa3magento.dev.evozon.com/checkout/cart/");
 
-        // Check if there is only one item in the cart
-        Locator productRow = page.locator("table#shopping-cart-table > tbody > tr.odd");
-        assertThat(productRow).hasCount(1);
-        Locator unexistentRow = page.locator("table#shopping-cart-table > tbody > tr.even");
-        assertThat(unexistentRow).hasCount(0);
-
         // Check if the quantity field displays the right value
-        Locator qtyFieldCart = page.locator("input[title=\"Qty\"]");
-        assertThat(qtyFieldCart).hasValue("1");
+        assertEquals(this.cartProduct.getQuantityValue(), 1);
 
         // Check if the photo is there
-        Locator productImage = page.locator("tr.odd > td.product-cart-image > a.product-image > img");
-        assertThat(productImage).isVisible();
-        assertThat(productImage).hasAttribute("alt", "Madison LX2200");
+        assertTrue(this.cartProduct.isImageExistent());
 
         // Check the name of the product
-        Locator productName = page.locator("td.product-cart-info > h2.product-name > a");
-        assertThat(productName).hasText("Madison LX2200");
+        assertEquals(this.cartProduct.getProductName(), "MADISON LX2200");
 
         // Check the unit price
-        Locator unitPrice = page.locator("td.product-cart-price > span.cart-price > span.price");
-        assertThat(unitPrice).hasText("$425.00");
+        assertEquals(this.cartProduct.getUnitPrice(), "$425.00");
     }
 
     @Test
@@ -74,53 +66,30 @@ public class TestCartFunctionalities {
         // Tori Tank, Indigo, Size M, Quantity 2, price 60
 
         // Add a configurable item to cart
-        page.navigate("http://qa3magento.dev.evozon.com/");
-        Locator womenSection = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Women").setExact(true));
-        womenSection.hover();
-        Locator newArrivalsSection = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("New Arrivals").setExact(true));
-        newArrivalsSection.click();
-        Locator viewDetailsButton = page.locator(".products-grid > li:nth-child(1) > div.product-info > div.actions > a.button");
-        viewDetailsButton.click();
-        Locator colorButton = page.getByAltText("Indigo");
-        colorButton.click();
-        Locator sizeButton = page.locator("ul#configurable_swatch_size > li.option-m > a#swatch79");
-        sizeButton.click();
-        Locator qtyField = page.locator("input#qty");
-        qtyField.fill("2");
-        Locator addButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Add to Cart"));
-        addButton.click();
+        this.productPage.navigate("http://qa3magento.dev.evozon.com/women/new-arrivals/tori-tank-466.html");
+        this.productPage.clickColorButton();
+        this.productPage.clickSizeButton();
+        this.productPage.fillInQuantity(2);
+        this.productPage.clickAddToCartButton();
 
         // Check if the user has been redirected to the cart page
         assertThat(page).hasURL("http://qa3magento.dev.evozon.com/checkout/cart/");
 
-        // Check if there is only one item in the cart
-        Locator productRow = page.locator("table#shopping-cart-table > tbody > tr.odd");
-        assertThat(productRow).hasCount(1);
-        Locator unexistentRow = page.locator("table#shopping-cart-table > tbody > tr.even");
-        assertThat(unexistentRow).hasCount(0);
-
         // Check if the quantity field displays the right value
-        Locator qtyFieldCart = page.locator("input[title=\"Qty\"]");
-        assertThat(qtyFieldCart).hasValue("2");
+        assertEquals(this.cartProduct.getQuantityValue(), 2);
 
         // Check if the photo is there
-        Locator productImage = page.locator("tr.odd > td.product-cart-image > a.product-image > img");
-        assertThat(productImage).isVisible();
-        assertThat(productImage).hasAttribute("alt", "Tori Tank");
+        assertTrue(this.cartProduct.isImageExistent());
 
         // Check the name of the product
-        Locator productName = page.locator("td.product-cart-info > h2.product-name > a");
-        assertThat(productName).hasText("Tori Tank");
+        assertEquals(this.cartProduct.getProductName(), "TORI TANK");
 
         // Check the attributes
-        Locator colorAttribute = page.locator("td.product-cart-info > dl.item-options > dd:first-of-type");
-        assertThat(colorAttribute).hasText("Indigo");
-        Locator sizeAttribute = page.locator("td.product-cart-info > dl.item-options > dd:last-of-type");
-        assertThat(sizeAttribute).hasText("M");
+        assertEquals(this.cartProduct.getColorAttribute(), "Indigo");
+        assertEquals(this.cartProduct.getSizeAttribute(), "M");
 
         // Check the unit price
-        Locator unitPrice = page.locator("td.product-cart-price > span.cart-price > span.price");
-        assertThat(unitPrice).hasText("$60.00");
+        assertEquals(this.cartProduct.getUnitPrice(), "$60.00");
     }
 
     @Test
